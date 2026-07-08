@@ -1,0 +1,14 @@
+# Quarto render artifacts
+.quarto/
+*_files/
+slides.html
+slides.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
