@@ -23,7 +23,7 @@ This repository will hold a **20-minute workshop talk** on reproducible data man
 
 ```bash
 quarto render slides.qmd --to html    # self-contained HTML deck
-quarto render slides.qmd --to pdf     # PDF fallback
+quarto render slides.qmd --to typst --output slides.pdf  # PDF fallback (typst engine)
 ```
 
 ## Target Structure

@@ -12,3 +12,9 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+/.quarto/
+**/*.quarto_ipynb
+slides.log
+slides.tex
+slides.typ
