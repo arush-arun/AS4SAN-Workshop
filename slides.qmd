@@ -52,6 +52,139 @@ nobody talks about.
 
 ---
 
+## Does this look familiar?
+
+<br>
+
+```
+my_study/
+├── data_final/
+├── data_final_v2/
+├── data_FINAL_really/
+├── analysis_old.R
+├── analysis_new.R
+├── analysis_new_fixed.R
+├── results_fig1_BACKUP.png
+└── README_ignore_this.txt
+```
+
+<br>
+
+- Which version of the data produced which figure?
+- What changed between "final" and "final_v2"?
+- Could a colleague reproduce your analysis from this folder?
+
+. . .
+
+**Version control solves this — for code *and* data.**
+
+::: notes
+I think most of us have been here. You start organised, but six months into a
+project you have five copies of the data and three versions of the analysis
+script and no idea which combination produced the figure in the paper. This is a
+version control problem. We have good tools for this — let me introduce the one
+that matters most.
+:::
+
+---
+
+## A quick intro to git
+
+<br>
+
+**git** is a tool that tracks changes to files over time — like "track changes" in Word, but for entire folders.
+
+<br>
+
+:::: {.columns}
+::: {.column width="50%"}
+
+**What git gives you:**
+
+- A complete history of every change
+- The ability to go back to any previous version
+- A record of *who* changed *what* and *when*
+- Safe collaboration — no overwriting each other's work
+
+:::
+::: {.column width="50%"}
+
+**The basic cycle:**
+
+```bash
+# 1. Make changes to your files
+
+# 2. Stage — choose what to save
+git add my_analysis.R
+
+# 3. Commit — save a snapshot
+git commit -m "Fix outlier filter"
+
+# 4. Push — share with collaborators
+git push
+```
+
+:::
+::::
+
+::: notes
+If you haven't used git before, here's the one-minute version. Git tracks
+changes to files in a folder. Every time you make a meaningful change, you take a
+snapshot — called a commit — with a short message describing what you did. You
+can always go back to any previous snapshot. And when you collaborate, git
+makes sure nobody accidentally overwrites anyone else's work. Think of it like
+track changes in Word, but it works on any file and keeps the full history
+forever.
+:::
+
+---
+
+## git is great — but it wasn't built for big data
+
+<br>
+
+:::: {.columns}
+::: {.column width="50%"}
+
+**git handles well:**
+
+- Analysis scripts (R, Python)
+- Participant lists, metadata (CSV, TSV)
+- Documentation and notes
+- Configuration files
+
+:::
+::: {.column width="50%"}
+
+**git struggles with:**
+
+- MRI scans (hundreds of MB each)
+- Large datasets (GBs to TBs)
+- Binary files that don't "diff" well
+- Data stored on remote servers
+
+:::
+::::
+
+<br>
+
+. . .
+
+**We need something that works *like* git, but can handle big neuroimaging data.**
+
+That's where DataLad comes in.
+
+::: notes
+Git is fantastic for code and small files, but it was never designed for large
+data. If you try to put a hundred NIfTI files into a git repository, it'll grind
+to a halt. The files are too big, they're binary so git can't show you what
+changed, and you'll run out of disk space fast. What we need is a tool that gives
+us the same benefits — history, collaboration, reproducibility — but that can
+handle the kind of data we actually work with in neuroimaging.
+:::
+
+---
+
 ## The concrete problem: MR-RATE
 
 <br>
@@ -85,16 +218,17 @@ nobody talks about.
 <small>Hugging Face: `Forithmus/MR-RATE` — CC BY-NC-SA 4.0</small>
 
 ::: notes
-MR-RATE is a good example of the kind of dataset that breaks the "just download
-it" approach. 8 terabytes across 83,000 patients, multiple MRI sequences,
-radiology reports, segmentation masks. You can't wget this. You can't put it on
-a USB stick. And it changes — new data gets added, errors get corrected. So how
-do you work with something like this reproducibly?
+Let's make this concrete. MR-RATE is a large neuroimaging dataset — 83,000
+patients, over 700,000 MRI volumes, 8 terabytes total. You can't just download
+this to your laptop. And even if you could, the dataset changes — new data gets
+added, errors get corrected. So how do you work with something like this
+reproducibly? You need a system that lets you grab just the piece you need, and
+keeps track of exactly which version you used.
 :::
 
 ---
 
-## The idea: DataLad as version control for data
+## DataLad: version control that works for data
 
 <br>
 
@@ -113,17 +247,18 @@ do you work with something like this reproducibly?
 
 <br>
 
-- **git** for small files (code, metadata, provenance records)
-- **git-annex** for large files (images, volumes) — stores *pointers*, not content
-- **DataLad** ties them together with a clean command-line interface
+- **git** handles the small stuff (scripts, metadata, history)
+- **git-annex** handles the big stuff (scans, volumes) — stores *pointers*, not the actual files
+- **DataLad** wraps both so you don't need to think about the layers underneath
 
 ::: notes
-DataLad builds on two tools you may already know. Git — which you use for code —
-tracks small files, history, and metadata. Git-annex extends git to handle large
-files by storing pointers instead of the actual content. DataLad wraps both into
-a single interface so you don't need to think about which layer is doing what.
-The key insight: you can clone a dataset and get all the metadata instantly,
-without downloading a single large file.
+DataLad is built on top of git. It adds a layer called git-annex that can handle
+large files. The trick is that git-annex doesn't actually store your MRI scans in
+the repository — it stores a pointer that says "this file exists and here's where
+to get it." So you can have a dataset with thousands of scans, clone it
+instantly, and only download the specific files you need. You don't need to
+understand git-annex to use DataLad — DataLad gives you simple commands that
+handle everything.
 :::
 
 ---
@@ -136,8 +271,8 @@ without downloading a single large file.
 |------|---------|-------------|
 | **install** | `datalad install -s <url>` | Clone metadata — no large files yet |
 | **get** | `datalad get sub-01/anat/*.nii.gz` | Fetch only the files you need |
-| **run** | `datalad run -m "msg" -- <cmd>` | Execute & record provenance |
-| **rerun** | `datalad rerun` | Reproduce from the recorded provenance |
+| **run** | `datalad run -m "msg" -- <cmd>` | Execute & record what you did |
+| **rerun** | `datalad rerun` | Reproduce from the recorded history |
 
 <br>
 
@@ -159,12 +294,14 @@ without downloading a single large file.
 </p>
 
 ::: notes
-This is the heart of it. Four commands. Install gives you the full directory
-tree and all the metadata, but none of the large files — it's instant even for
-terabyte-scale datasets. Get fetches exactly the files you need. Run wraps any
-command you'd normally type and records exactly what was run, on which inputs,
-producing which outputs. Rerun replays that recorded command — same inputs, same
-command, verifiable output. That's the whole workflow.
+This is the heart of DataLad — four commands that cover the whole workflow.
+Install gives you the full directory tree and all the metadata, but none of the
+large files — it's instant even for terabyte-scale datasets. Get fetches exactly
+the files you need, nothing more. Run wraps any command you'd normally type and
+records exactly what was run, on which inputs, producing which outputs — like a
+lab notebook for your computer. And rerun replays that recorded command — same
+inputs, same command, verifiable output. If a reviewer asks "can you reproduce
+figure 3?" — you can.
 :::
 
 ---
@@ -173,31 +310,33 @@ command, verifiable output. That's the whole workflow.
 
 <br>
 
-### Provenance
+### Provenance — your digital lab notebook
 
 > "Which version of which data produced this figure?"
 
-DataLad records the **exact command**, **inputs**, and **outputs** in the git history.
+DataLad records the **exact command**, **inputs**, and **outputs** — automatically.
 
 <br>
 
-### Selective access
+### Selective access — download only what you need
 
-Download 50 MB for your analysis, not 8 TB for the whole dataset.
+Get 50 MB of scans for your analysis, not 8 TB for the whole dataset.
 
 <br>
 
-### Multi-site collaboration
+### Collaboration — no more emailing files
 
-Everyone installs the same dataset. `git log` shows who changed what and when.
+Everyone works from the same dataset. The history shows who changed what and when.
 
 ::: notes
-Three reasons this matters in practice. First, provenance — you can go back to
-any result and see exactly what data and what command produced it. Second,
-efficiency — you only download what you actually need, which is critical when
-datasets are terabytes. Third, collaboration — when multiple sites work on the
-same dataset, DataLad gives you a shared version history. No more emailing files
-or wondering if you're working on the same version.
+Three reasons this matters for your day-to-day research. First, provenance — you
+can go back to any result and see exactly what data and what command produced it.
+Think of it as a lab notebook for your computational work. Second, efficiency —
+you only download what you actually need. If you're analysing 20 subjects from a
+dataset of 83,000, you don't need to download the other 82,980. Third,
+collaboration — when you're working with colleagues across sites, everyone works
+from the same versioned dataset. No more emailing zip files or wondering if
+you're looking at the same data.
 :::
 
 ---
@@ -225,10 +364,11 @@ You now have exactly the files the notebooks expect — and a record of where th
 
 ::: notes
 Here's how you get set up for the rest of the workshop. Install DataLad and
-git-annex if you don't have them. Then datalad install the workshop dataset —
-this is fast because it only pulls metadata. Then datalad get the exercise files.
-Now your notebook will just work, and you have a full provenance trail of where
-every file came from.
+git-annex if you don't have them — it's a one-line pip install. Then datalad
+install the workshop dataset — this is fast because it only grabs metadata, not
+the actual scan files. Then datalad get the exercise files you need. That's it.
+Your notebooks will work, and you have a full trail of where every file came
+from. If something goes wrong, you can always get back to exactly this state.
 :::
 
 ---
@@ -248,12 +388,14 @@ every file came from.
 
 <br>
 
-The DataLad Handbook is the single best starting point — it's a full tutorial with worked examples.
+The DataLad Handbook is the single best starting point — it's a full tutorial with worked examples, no programming background required.
 
 ::: notes
-Here are the key resources. The DataLad Handbook is excellent — it walks you
-through everything from installation to advanced workflows with real examples.
-OpenNeuro hosts thousands of neuroimaging datasets accessible via DataLad.
-The MR-RATE dataset is on Hugging Face. And this talk itself is a git repo —
-the slides are Quarto markdown, so you can see exactly how they were built.
+Here are the key resources. The DataLad Handbook is excellent and written for
+researchers, not software engineers — it walks you through everything from
+installation to advanced workflows. OpenNeuro hosts thousands of neuroimaging
+datasets that you can access via DataLad. The MR-RATE dataset we discussed is on
+Hugging Face. And this talk itself is a git repository — the slides are version-
+controlled markdown, so you can see exactly how they were built. Practice what
+you preach.
 :::
