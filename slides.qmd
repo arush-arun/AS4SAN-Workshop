@@ -4,49 +4,142 @@ subtitle: "Reproducible data management for big neuroimaging"
 format: revealjs
 ---
 
-## Title {.center}
+## {.center}
 
-<!-- TODO: title slide content — title, author, affiliation, date -->
+<br>
+
+### Where does the data come from?
+
+#### Reproducible data management for big neuroimaging
+
+<br>
+
+**AS4SAN Workshop**
 
 ::: notes
-TODO: speaker notes
+Welcome. Before we get into analysis pipelines, models, and results — I want to
+talk about the step that comes before all of that. Where does the data actually
+come from, and how do you keep track of it?
 :::
 
 ---
 
 ## Every other module assumes the data is already here
 
-<!-- TODO: hook — the gap that exists before analysis begins -->
+<br>
+
+> "Download the dataset and place it in `./data/`"
+>
+> — Every tutorial ever
+
+<br>
+
+- Preprocessing pipelines assume the files exist
+- Analysis scripts assume a specific directory layout
+- Papers reference "the dataset" but not *which version*
+
+. . .
+
+**Nobody talks about how the data got there — or whether it's the same data you had last week.**
 
 ::: notes
-TODO: speaker notes
+This is the gap. Every other part of the workshop — the preprocessing, the
+statistical analysis, the machine learning — all of it starts with "assuming
+you have the data." But getting the data, knowing which version you have,
+and being able to reproduce that exact starting point — that's the hard part
+nobody talks about.
 :::
 
 ---
 
 ## The concrete problem: MR-RATE
 
-<!-- TODO: MR-RATE as anchor — too big to just download, multi-site, evolving -->
+<br>
+
+:::: {.columns}
+::: {.column width="50%"}
+
+| | |
+|---|---|
+| **Patients** | 83,425 |
+| **MRI volumes** | 705,254 |
+| **Total size** | 8.1 TB |
+| **Modalities** | T1, T2, FLAIR, SWI, MRA |
+| **Extras** | radiology reports, brain masks, segmentations |
+
+:::
+::: {.column width="50%"}
+
+**You can't just download 8 TB.**
+
+- Too large for a single machine
+- Evolving — new releases, corrections
+- Multi-site (Zurich, Istanbul, NVIDIA)
+- You only need a *subset* for your analysis
+
+:::
+::::
+
+<br>
+
+<small>Hugging Face: `Forithmus/MR-RATE` — CC BY-NC-SA 4.0</small>
 
 ::: notes
-TODO: speaker notes
+MR-RATE is a good example of the kind of dataset that breaks the "just download
+it" approach. 8 terabytes across 83,000 patients, multiple MRI sequences,
+radiology reports, segmentation masks. You can't wget this. You can't put it on
+a USB stick. And it changes — new data gets added, errors get corrected. So how
+do you work with something like this reproducibly?
 :::
 
 ---
 
 ## The idea: DataLad as version control for data
 
-<!-- TODO: git + git-annex mental model, what DataLad adds on top -->
+<br>
+
+```
+┌─────────────────────────────────────────────┐
+│              DataLad                        │
+│  ┌──────────────┐    ┌──────────────────┐   │
+│  │     git      │    │    git-annex     │   │
+│  │  tracks:     │    │  tracks:         │   │
+│  │  • metadata  │    │  • large files   │   │
+│  │  • scripts   │    │  • where to get  │   │
+│  │  • history   │    │    them from     │   │
+│  └──────────────┘    └──────────────────┘   │
+└─────────────────────────────────────────────┘
+```
+
+<br>
+
+- **git** for small files (code, metadata, provenance records)
+- **git-annex** for large files (images, volumes) — stores *pointers*, not content
+- **DataLad** ties them together with a clean command-line interface
 
 ::: notes
-TODO: speaker notes
+DataLad builds on two tools you may already know. Git — which you use for code —
+tracks small files, history, and metadata. Git-annex extends git to handle large
+files by storing pointers instead of the actual content. DataLad wraps both into
+a single interface so you don't need to think about which layer is doing what.
+The key insight: you can clone a dataset and get all the metadata instantly,
+without downloading a single large file.
 :::
 
 ---
 
 ## The core loop: install → get → run → rerun
 
-<!-- TODO: explain the four-step loop -->
+<br>
+
+| Step | Command | What happens |
+|------|---------|-------------|
+| **install** | `datalad install -s <url>` | Clone metadata — no large files yet |
+| **get** | `datalad get sub-01/anat/*.nii.gz` | Fetch only the files you need |
+| **run** | `datalad run -m "msg" -- <cmd>` | Execute & record provenance |
+| **rerun** | `datalad rerun` | Reproduce from the recorded provenance |
+
+<br>
 
 <!--
   Asciinema cast embed placeholder.
@@ -66,35 +159,101 @@ TODO: speaker notes
 </p>
 
 ::: notes
-TODO: speaker notes — walk through the cast
+This is the heart of it. Four commands. Install gives you the full directory
+tree and all the metadata, but none of the large files — it's instant even for
+terabyte-scale datasets. Get fetches exactly the files you need. Run wraps any
+command you'd normally type and records exactly what was run, on which inputs,
+producing which outputs. Rerun replays that recorded command — same inputs, same
+command, verifiable output. That's the whole workflow.
 :::
 
 ---
 
-## Why it matters: provenance and reproducibility
+## Why it matters
 
-<!-- TODO: provenance, "which data made this figure," multi-site collaboration -->
+<br>
+
+### Provenance
+
+> "Which version of which data produced this figure?"
+
+DataLad records the **exact command**, **inputs**, and **outputs** in the git history.
+
+<br>
+
+### Selective access
+
+Download 50 MB for your analysis, not 8 TB for the whole dataset.
+
+<br>
+
+### Multi-site collaboration
+
+Everyone installs the same dataset. `git log` shows who changed what and when.
 
 ::: notes
-TODO: speaker notes
+Three reasons this matters in practice. First, provenance — you can go back to
+any result and see exactly what data and what command produced it. Second,
+efficiency — you only download what you actually need, which is critical when
+datasets are terabytes. Third, collaboration — when multiple sites work on the
+same dataset, DataLad gives you a shared version history. No more emailing files
+or wondering if you're working on the same version.
 :::
 
 ---
 
-## On-ramp: getting started in the workshop
+## On-ramp: getting started
 
-<!-- TODO: participants datalad-get the workshop dataset, set up the notebook exercise -->
+<br>
+
+```bash
+# Install DataLad (if you haven't already)
+pip install datalad
+sudo apt install git-annex    # or: brew install git-annex
+
+# Clone the workshop dataset (metadata only — fast)
+datalad install -s <workshop-dataset-url> workshop-data
+
+# Fetch the files you need for the exercises
+cd workshop-data
+datalad get exercises/
+```
+
+<br>
+
+You now have exactly the files the notebooks expect — and a record of where they came from.
 
 ::: notes
-TODO: speaker notes
+Here's how you get set up for the rest of the workshop. Install DataLad and
+git-annex if you don't have them. Then datalad install the workshop dataset —
+this is fast because it only pulls metadata. Then datalad get the exercise files.
+Now your notebook will just work, and you have a full provenance trail of where
+every file came from.
 :::
 
 ---
 
 ## Pointers and resources
 
-<!-- TODO: DataLad handbook, OpenNeuro, datasets.datalad.org, links -->
+<br>
+
+| Resource | Link |
+|----------|------|
+| **DataLad Handbook** | [handbook.datalad.org](http://handbook.datalad.org) |
+| **OpenNeuro** | [openneuro.org](https://openneuro.org) |
+| **DataLad datasets** | [datasets.datalad.org](http://datasets.datalad.org) |
+| **MR-RATE** | [huggingface.co/datasets/Forithmus/MR-RATE](https://huggingface.co/datasets/Forithmus/MR-RATE) |
+| **MR-RATE code** | [github.com/forithmus/MR-RATE](https://github.com/forithmus/MR-RATE) |
+| **This talk** | [github.com/arush-arun/AS4SAN-Workshop](https://github.com/arush-arun/AS4SAN-Workshop) |
+
+<br>
+
+The DataLad Handbook is the single best starting point — it's a full tutorial with worked examples.
 
 ::: notes
-TODO: speaker notes
+Here are the key resources. The DataLad Handbook is excellent — it walks you
+through everything from installation to advanced workflows with real examples.
+OpenNeuro hosts thousands of neuroimaging datasets accessible via DataLad.
+The MR-RATE dataset is on Hugging Face. And this talk itself is a git repo —
+the slides are Quarto markdown, so you can see exactly how they were built.
 :::
