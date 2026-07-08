@@ -351,7 +351,7 @@ pip install datalad
 sudo apt install git-annex    # or: brew install git-annex
 
 # Clone the workshop dataset (metadata only — fast)
-datalad install -s <workshop-dataset-url> workshop-data
+datalad install -s https://github.com/forithmus/MR-RATE workshop-data
 
 # Fetch the files you need for the exercises
 cd workshop-data
