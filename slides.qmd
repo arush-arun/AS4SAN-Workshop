@@ -1,12 +1,19 @@
 ---
 title: "Where does the data come from?"
 subtitle: "Reproducible data management for big neuroimaging"
-format: revealjs
+format:
+  revealjs:
+    include-in-header:
+      - text: |
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.css">
+          <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
 ---
 
 ## {.center}
 
 <br>
+
+![](assets/UQ-300x300.png){width=150 fig-align="center"}
 
 ### Where does the data come from?
 
@@ -276,22 +283,19 @@ handle everything.
 
 <br>
 
-<!--
-  Asciinema cast embed placeholder.
-  Replace demo/casts/demo.cast with your recorded cast, then use one of:
-
-  Option A — asciinema-player (recommended):
-    <div id="demo-player"></div>
-    <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.css">
-    <script>AsciinemaPlayer.create('demo/casts/demo.cast', document.getElementById('demo-player'));</script>
-
-  Option B — fallback linked GIF:
-    [![Demo](assets/demo.gif)](demo/casts/demo.cast)
--->
-<p style="text-align:center; color:#888; border:2px dashed #ccc; padding:2em;">
-  [ asciinema cast will be embedded here — see comments above ]
-</p>
+<div id="demo-player"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AsciinemaPlayer.create('demo/casts/demo.cast', document.getElementById('demo-player'), {
+      cols: 80,
+      rows: 20,
+      autoPlay: false,
+      speed: 1.5,
+      theme: 'monokai',
+      fit: 'width'
+    });
+  });
+</script>
 
 ::: notes
 This is the heart of DataLad — four commands that cover the whole workflow.
