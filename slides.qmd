@@ -1,0 +1,100 @@
+---
+title: "Where does the data come from?"
+subtitle: "Reproducible data management for big neuroimaging"
+format: revealjs
+---
+
+## Title {.center}
+
+<!-- TODO: title slide content — title, author, affiliation, date -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## Every other module assumes the data is already here
+
+<!-- TODO: hook — the gap that exists before analysis begins -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## The concrete problem: MR-RATE
+
+<!-- TODO: MR-RATE as anchor — too big to just download, multi-site, evolving -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## The idea: DataLad as version control for data
+
+<!-- TODO: git + git-annex mental model, what DataLad adds on top -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## The core loop: install → get → run → rerun
+
+<!-- TODO: explain the four-step loop -->
+
+<!--
+  Asciinema cast embed placeholder.
+  Replace demo/casts/demo.cast with your recorded cast, then use one of:
+
+  Option A — asciinema-player (recommended):
+    <div id="demo-player"></div>
+    <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.css">
+    <script>AsciinemaPlayer.create('demo/casts/demo.cast', document.getElementById('demo-player'));</script>
+
+  Option B — fallback linked GIF:
+    [![Demo](assets/demo.gif)](demo/casts/demo.cast)
+-->
+<p style="text-align:center; color:#888; border:2px dashed #ccc; padding:2em;">
+  [ asciinema cast will be embedded here — see comments above ]
+</p>
+
+::: notes
+TODO: speaker notes — walk through the cast
+:::
+
+---
+
+## Why it matters: provenance and reproducibility
+
+<!-- TODO: provenance, "which data made this figure," multi-site collaboration -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## On-ramp: getting started in the workshop
+
+<!-- TODO: participants datalad-get the workshop dataset, set up the notebook exercise -->
+
+::: notes
+TODO: speaker notes
+:::
+
+---
+
+## Pointers and resources
+
+<!-- TODO: DataLad handbook, OpenNeuro, datasets.datalad.org, links -->
+
+::: notes
+TODO: speaker notes
+:::

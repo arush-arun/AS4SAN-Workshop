@@ -1,0 +1,12 @@
+project:
+  type: default
+
+format:
+  revealjs:
+    theme: default
+    embed-resources: true
+    slide-number: true
+    footer: "Where does the data come from? — Reproducible data management for big neuroimaging"
+    transition: fade
+    width: 1280
+    height: 720
