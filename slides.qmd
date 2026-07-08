@@ -3,10 +3,7 @@ title: "Where does the data come from?"
 subtitle: "Reproducible data management for big neuroimaging"
 format:
   revealjs:
-    include-in-header:
-      - text: |
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.css">
-          <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
+    embed-resources: false
 ---
 
 ## {.center}
@@ -283,14 +280,20 @@ handle everything.
 
 <br>
 
+<link rel="stylesheet" href="assets/asciinema-player.min.css">
+<script src="assets/asciinema-player.min.js"></script>
 <div id="demo-player"></div>
+<script id="cast-data" type="text/plain">
+{{< include demo/casts/demo.cast >}}
+</script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    AsciinemaPlayer.create('demo/casts/demo.cast', document.getElementById('demo-player'), {
+    var castData = document.getElementById('cast-data').textContent.trim();
+    AsciinemaPlayer.create({ data: castData }, document.getElementById('demo-player'), {
       cols: 80,
       rows: 20,
       autoPlay: false,
-      speed: 1.5,
+      speed: 1,
       theme: 'monokai',
       fit: 'width'
     });
