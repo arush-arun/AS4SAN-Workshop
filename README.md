@@ -1,4 +1,4 @@
-# Where does the data come from?
+#Reproducible data management for big neuroimaging
 
 **Reproducible data management for big neuroimaging** — a 30-minute workshop talk built around [DataLad](https://www.datalad.org/).
 
